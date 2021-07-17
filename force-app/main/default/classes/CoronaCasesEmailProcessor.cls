@@ -6,8 +6,17 @@ public with sharing class CoronaCasesEmailProcessor {
         }
     }
 
+    @future(callout=true)
+    public static void sendLatestUpdated() {
+        for (Contact con : [SELECT Name, Email, Interested_Country_Region__c FROM Contact ORDER BY LastModifiedDate DESC]) {
+            send(con);
+            break;
+        }
+    }
+
+    @future(callout=true)
     public static void sendAll() {
-        for (Contact con : [SELECT Name, Email FROM Contact]) {
+        for (Contact con : [SELECT Name, Email, Interested_Country_Region__c FROM Contact]) {
             send(con);
         }
     }
@@ -18,15 +27,17 @@ public with sharing class CoronaCasesEmailProcessor {
         return brokers.get(randomNum);
     }
 
-    private static String getEmailBody(String name, String country) {
+    public static String getEmailBody(String name, String country) {
         Broker__c b = getBroker(); 
-        String body = 'Hi ' + name + ',\n\n'
-            + 'Thanks for your interest in the property of ' + country + '. We kindly send you the latest Corona cases of ' + Date.today().format() + '.\n\n'
-            + '<The total stats around the globe of today>\n\n'
-            + '<The stats of his/her interested country/region of today>\n\n'
-            + 'We are launching a new site http://www.dreamhouseapp.io/ to help you explore the houses at home. If you have any questions, feel free to contact the broker: ' + b.Name + ': ' + b.Phone__c + '\n\n'
-            + 'Hope you stay safe and healthy.\n\n'
-            + 'Sincerely,\nDreamHouse Realty\n' + Date.today().format() + '\n';
+        String body = '<body>'
+            + '<p>Hi ' + name + ',</p>'
+            + '<p>We kindly send you the latest Corona cases of ' + Date.today().format() + '.</p>'
+            + CoronaCasesService.getCoronaCasesOfWorld(DateTime.now())
+            + CoronaCasesService.getCoronaCasesByCountry(country, DateTime.now())
+            + '<p>We are launching a new site http://www.dreamhouseapp.io/ to help you explore the houses at home. If you have any questions, feel free to contact the broker: ' + b.Name + ': ' + b.Phone__c + '</p>'
+            + '<p>Hope you stay safe and healthy.<br>'
+            + 'Sincerely,<br>DreamHouse Realty<br>' + Date.today().format() + '</p>'
+            + '</body>';
         return body;
     }
 }

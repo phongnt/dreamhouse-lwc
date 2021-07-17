@@ -4,7 +4,7 @@ public class EmailManager {
         String[] toAddresses = new String[] {address};
         mail.setToAddresses(toAddresses);
         mail.setSubject(subject);
-        mail.setPlainTextBody(body);
+        mail.setHtmlBody(body);
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 }

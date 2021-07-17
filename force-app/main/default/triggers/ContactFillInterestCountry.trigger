@@ -6,7 +6,7 @@ trigger ContactFillInterestCountry on Contact (after update) {
         //check who filled the Interested Country/Region
         if (String.isEmpty(oldValue) && String.isNotEmpty(newValue)) {
             //send email
-            CoronaCasesEmailProcessor.send(contact);
+            CoronaCasesEmailProcessor.sendLatestUpdated();
         }
     }
 }
